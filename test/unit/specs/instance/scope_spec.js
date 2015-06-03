@@ -6,8 +6,18 @@ describe('Instance Scope', function () {
 
     var data = {
       a: 0,
-      b: 0
+      b: 0,
+      x: {
+        name: 'X'
+      },
+      y: {
+        name: 'Y'
+      }
     }
+
+    data.x.y = data.y
+    data.y.x = data.x
+
     var vm = new Vue({
       data: data
     })
@@ -27,6 +37,29 @@ describe('Instance Scope', function () {
       data.b = 2
       expect(vm.b).toBe(2)
       expect(vm.b).toBe(data.b)
+    })
+
+    describe('circular references', function () {
+
+      it('initial', function () {
+        expect(vm.x.y).toBe(data.y)
+        expect(vm.x.y.x).toBe(data.x)
+        expect(vm.y.x).toBe(data.x)
+        expect(vm.y.x.y).toBe(data.y)
+      })
+
+      it('vm => data', function () {
+        vm.x.y = data.y
+        expect(data.x.y).toBe(vm.y)
+        expect(data.x.y.x).toBe(vm.x)
+      })
+
+      it('data => vm', function () {
+        data.y.x = vm.x
+        expect(vm.y.x).toBe(data.x)
+        expect(vm.y.x.y).toBe(data.y)
+      })
+
     })
 
   })
